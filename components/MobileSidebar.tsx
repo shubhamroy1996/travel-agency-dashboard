@@ -28,8 +28,8 @@ const MobileSidebar = () => {
             </header>
 
             <SidebarComponent
-                width={270}
-                ref={(Sidebar) => sidebar = Sidebar}
+                style={{ width: '270px' }}
+                ref={(Sidebar: any) => sidebar = Sidebar}
                 created={() => sidebar.hide()}
                 closeOnDocumentClick={true}
                 showBackdrop={true}
