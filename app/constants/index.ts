@@ -149,7 +149,7 @@ export const allTrips = [{
       itinerary: [{ location: "Thailand" }],
       tags: ["Adventure", "Culture"],
       travelStyle: "Solo",
-      estimatedPrice: "$1,000",
+      estimatedPrice: "₹10,000",
     },
     {
       id: 2,
