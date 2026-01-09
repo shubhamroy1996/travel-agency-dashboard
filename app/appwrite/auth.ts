@@ -102,3 +102,11 @@ export const getAllUsers = async (limit: number, offset: number) => {
   }
 };
 
+export const logoutUser = async () => {
+  try {
+    await account.deleteSession('current')
+  } catch(error) {
+    console.log("Error during logout:", error )
+  }
+}
+
