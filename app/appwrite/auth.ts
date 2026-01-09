@@ -1,4 +1,4 @@
-import { OAuthProvider, Query } from "appwrite"
+import { ID, OAuthProvider, Query } from "appwrite"
 import { account, appwriteConfig, database } from "./client"
 import { redirect } from "react-router"
 
@@ -52,25 +52,25 @@ export const getUser = async () => {
   }
 };
 
-export const getGooglePicture = async () => {
+export const getGooglePicture = async (accessToken: string) => {
   try {
-    const user = await account.get();
-    if (!user) return null;
+    // const user = await account.get();
+    // if (!user) return null;
 
-    // Get the OAuth2 session to access the provider account info
-    const sessions = await account.listSessions();
-    const googleSession = sessions.sessions.find(
-      (session) => session.provider === "google"
-    );
+    // // Get the OAuth2 session to access the provider account info
+    // const sessions = await account.listSessions();
+    // const googleSession = sessions.sessions.find(
+    //   (session) => session.provider === "google"
+    // );
 
-    if (!googleSession) return null;
+    // if (!googleSession) return null;
 
     // Fetch profile info from Google People API
     const response = await fetch(
       "https://people.googleapis.com/v1/people/me?personFields=photos",
       {
         headers: {
-          Authorization: `Bearer ${googleSession.providerAccessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       }
     );
@@ -105,8 +105,39 @@ export const getAllUsers = async (limit: number, offset: number) => {
 export const logoutUser = async () => {
   try {
     await account.deleteSession('current')
-  } catch(error) {
-    console.log("Error during logout:", error )
+  } catch (error) {
+    console.log("Error during logout:", error)
   }
 }
+
+export const storeUserData = async () => {
+  try {
+    const user = await account.get();
+    if (!user) throw new Error("User not found");
+
+    const { providerAccessToken } = (await account.getSession("current")) || {};
+    const profilePicture = providerAccessToken
+      ? await getGooglePicture(providerAccessToken)
+      : null;
+
+    const createdUser = await database.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.usersCollectionId,
+      ID.unique(),
+      {
+        accountId: user.$id,
+        email: user.email,
+        name: user.name,
+        imageUrl: profilePicture,
+        joinedAt: new Date().toISOString(),
+      }
+    );
+
+    if (!createdUser.$id) redirect("/sign-in");
+    return createdUser;
+  } catch (error) {
+    console.error("Error storing user data:", error);
+    return null;
+  }
+};
 
