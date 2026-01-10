@@ -192,7 +192,7 @@ export const allTrips = [{
     userRole: { total: 50, currentMonth: 21, lastMonth: 15 }
   };
 
-  const users = [
+export const users = [
     {
       id: 1,
       name: "John Doe",
