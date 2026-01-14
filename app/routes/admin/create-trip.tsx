@@ -1,8 +1,19 @@
 import { ComboBoxComponent } from "@syncfusion/ej2-react-dropdowns";
+import {
+  LayerDirective,
+  LayersDirective,
+  MapsComponent,
+} from "@syncfusion/ej2-react-maps";
 import { Headers } from "components";
 
 import type { Route } from "./+types/create-trip";
 import { useNavigate } from "react-router";
+
+import { comboBoxItems, selectItems } from "../../constants";
+import { cn, formatKey } from "~/lib/utils";
+import { useState } from "react";
+import { world_map } from "~/constants/world_map";
+import { ButtonComponent } from "@syncfusion/ej2-react-buttons";
 
 export const loader = async () => {
   const response = await fetch(
@@ -22,6 +33,19 @@ export const loader = async () => {
 
 const createTrip = ({ loaderData }: Route.ComponentProps) => {
   const countries = loaderData as Country[];
+
+  const [formData, setFormData] = useState<TripFormData>({
+    country: countries[0]?.name || "",
+    travelStyle: "",
+    interest: "",
+    budget: "",
+    duration: 0,
+    groupType: "",
+  });
+
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const countryData = countries.map((country) => ({
@@ -31,7 +55,19 @@ const createTrip = ({ loaderData }: Route.ComponentProps) => {
   }));
   const handleSubmit = async () => {};
 
-  const handleChange = (key: keyof TripFormData, value: string | number) => {};
+  const handleChange = (key: keyof TripFormData, value: string | number) => {
+    setFormData({ ...formData, [key]: value });
+  };
+
+  const mapData = [
+    {
+      country: formData.country,
+      color: "#EA382E",
+      coordinates:
+        countries.find((c: Country) => c.name === formData.country)
+          ?.coordinates || [],
+    },
+  ];
 
   return (
     <main className="flex flex-col gap-10 pb-20 wrapper">
@@ -84,6 +120,79 @@ const createTrip = ({ loaderData }: Route.ComponentProps) => {
               onChange={(e) => handleChange("duration", Number(e.target.value))}
             />
           </div>
+          {selectItems.map((key) => (
+            <div key={key}>
+              <label htmlFor={key}>{formatKey(key)}</label>
+
+              <ComboBoxComponent
+                id={key}
+                dataSource={comboBoxItems[key].map((item) => ({
+                  text: item,
+                  value: item,
+                }))}
+                fields={{ text: "text", value: "value" }}
+                placeholder={`Select ${formatKey(key)}`}
+                change={(e: { value: string | undefined }) => {
+                  if (e.value) {
+                    handleChange(key, e.value);
+                  }
+                }}
+                allowFiltering
+                filtering={(e) => {
+                  const query = e.text.toLowerCase();
+
+                  e.updateData(
+                    comboBoxItems[key]
+                      .filter((item) => item.toLowerCase().includes(query))
+                      .map((item) => ({
+                        text: item,
+                        value: item,
+                      }))
+                  );
+                }}
+                className="combo-box"
+              />
+            </div>
+          ))}
+
+          <div>
+            <label htmlFor="location">Location on the world map</label>
+            <MapsComponent>
+              <LayersDirective>
+                <LayerDirective
+                  shapeData={world_map}
+                  dataSource={mapData}
+                  shapePropertyPath="name"
+                  shapeDataPath="country"
+                  shapeSettings={{ colorValuePath: "color", fill: "#E5E5E5" }}
+                />
+              </LayersDirective>
+            </MapsComponent>
+          </div>
+
+          <div className="bg-gray-200 h-px w-full" />
+
+          {error && (
+            <div className="error">
+              <p>{error}</p>
+            </div>
+          )}
+
+          <footer className="px-6 w-full">
+            <ButtonComponent
+              type="submit"
+              className="button-class !h-12 !w-full"
+              disabled={loading}
+            >
+              <img
+                src={`/assets/icons/${loading ? "loader.svg" : "magic-star.svg"}`}
+                className={cn("size-5", { "animate-spin": loading })}
+              />
+              <span className="p-16-semibold text-white">
+                {loading ? "Generating..." : "Generate Trip"}
+              </span>
+            </ButtonComponent>
+          </footer>
         </form>
       </section>
     </main>
