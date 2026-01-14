@@ -14,6 +14,7 @@ import { cn, formatKey } from "~/lib/utils";
 import { useState } from "react";
 import { world_map } from "~/constants/world_map";
 import { ButtonComponent } from "@syncfusion/ej2-react-buttons";
+import { account } from "~/appwrite/client";
 
 export const loader = async () => {
   const response = await fetch(
@@ -53,7 +54,44 @@ const createTrip = ({ loaderData }: Route.ComponentProps) => {
     flagUrl: country.flags,
     value: country.value,
   }));
-  const handleSubmit = async () => {};
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (
+      !formData.budget ||
+      !formData.country ||
+      !formData.duration ||
+      !formData.groupType ||
+      !formData.interest ||
+      !formData.travelStyle
+    ) {
+      setError("Please provide value for all the fields");
+      setLoading(false);
+      return;
+    }
+    if (formData.duration < 1 || formData.duration > 10) {
+      setError("Duration must be between 1 and 10 days");
+      setLoading(false);
+      return;
+    }
+    const user = await account.get();
+    if (!user.$id) {
+      console.error("User not authenticated");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      console.log("user", user);
+      console.log("FormData----->", formData);
+    } catch (e) {
+      console.log("Error generating trip", e);
+    } finally {
+      setLoading(false);
+      console.log("success");
+    }
+  };
 
   const handleChange = (key: keyof TripFormData, value: string | number) => {
     setFormData({ ...formData, [key]: value });
