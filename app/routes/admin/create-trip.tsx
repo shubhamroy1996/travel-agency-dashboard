@@ -83,8 +83,23 @@ const createTrip = ({ loaderData }: Route.ComponentProps) => {
     }
 
     try {
-      console.log("user", user);
-      console.log("FormData----->", formData);
+      const response = await fetch("/api/create-trip", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          country: formData.country,
+          numberOfDays: formData.duration,
+          travelStyle: formData.travelStyle,
+          interests: formData.interest,
+          budget: formData.budget,
+          groupType: formData.groupType,
+          userId: user.$id,
+        }),
+      });
+
+      const result: CreateTripResponse = await response.json();
+      if (result?.id) navigate(`/trips/${result.id}`);
+      else console.error("Failed to generate a trip");
     } catch (e) {
       console.log("Error generating trip", e);
     } finally {
