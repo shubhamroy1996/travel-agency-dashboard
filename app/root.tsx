@@ -8,6 +8,7 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
+import { registerLicense } from "@syncfusion/ej2-base";
 import * as Sentry from "@sentry/react-router";
 import "./app.css";
 
@@ -24,7 +25,6 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
-import { registerLicense } from "@syncfusion/ej2-base";
 
 registerLicense(import.meta.env.VITE_SYNCFUSION_LICENSE_KEY);
 
