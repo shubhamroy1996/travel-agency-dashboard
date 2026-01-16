@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { getTripById } from "~/appwrite/trip";
+import { getAllTrips, getTripById } from "~/appwrite/trip";
 import type { Route } from "./+types/trip-detail";
 import { cn, getFirstWord, parseTripData } from "~/lib/utils";
 import { Headers, TripCard } from "components";
@@ -16,14 +16,26 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 
   if (!tripId) throw new Error("Trip id is required");
 
-  const trip = await getTripById(tripId);
+  // const trip = await getTripById(tripId);
 
-  return trip;
+  const [trip, trips] = await Promise.all([
+    getTripById(tripId),
+    getAllTrips(4, 0),
+  ]);
+
+  return {
+    trip,
+    allTrips: trips.allTrips.map(({ $id, tripDetail, imageUrls }) => ({
+      id: $id,
+      ...parseTripData(tripDetail),
+      imageUrls: imageUrls ?? [],
+    })),
+  };
 };
 
 const TripDetail = ({ loaderData }: Route.ComponentProps) => {
-  const tripData = parseTripData(loaderData?.tripDetail);
-  const imageUrls = loaderData?.imageUrls || [];
+  const tripData = parseTripData(loaderData?.trip?.tripDetail);
+  const imageUrls = loaderData?.trip?.imageUrls || [];
   const {
     name,
     duration,
@@ -38,6 +50,8 @@ const TripDetail = ({ loaderData }: Route.ComponentProps) => {
     weatherInfo,
     country,
   } = tripData || {};
+
+  const allTrips = loaderData.allTrips as Trip[] | [];
 
   const tripItems = [
     { text: travelStyle, bg: "!bg-pink-50 !text-pink-500" },
@@ -180,6 +194,23 @@ const TripDetail = ({ loaderData }: Route.ComponentProps) => {
             </div>
           </section>
         ))}
+      </section>
+      <section className="flex flex-col gap-6">
+        <h2 className="p-24-semibold text-dark-100">Popular Trips</h2>
+
+        <div className="trip-grid">
+          {allTrips.map((trip) => (
+            <TripCard
+              key={trip.id}
+              id={trip.id}
+              name={trip.name}
+              imageUrl={trip.imageUrls[0]}
+              location={trip.itinerary?.[0]?.location ?? ""}
+              tags={[trip.interests, trip.travelStyle]}
+              price={trip.estimatedPrice}
+            />
+          ))}
+        </div>
       </section>
     </main>
   );
