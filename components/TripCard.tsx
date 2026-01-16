@@ -45,7 +45,7 @@ const TripCard = ({
             {tags?.map((tag, index) => (
               <ChipDirective
                 key={index}
-                text={getFirstWord(tag)}
+                text={tag}
                 cssClass={cn(
                   index === 1
                     ? "!bg-pink-50 !text-pink-500"
