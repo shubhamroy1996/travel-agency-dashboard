@@ -234,7 +234,7 @@ const createTrip = ({ loaderData }: Route.ComponentProps) => {
           <footer className="px-6 w-full">
             <ButtonComponent
               type="submit"
-              className="button-class !h-12 !w-full"
+              className="button-class h-12! w-full!"
               disabled={loading}
             >
               <img
