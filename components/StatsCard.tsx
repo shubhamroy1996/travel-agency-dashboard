@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { calculateTrendPercentage, cn } from '~/lib/utils'
 
 const StatsCard = ({headerTitle, total, currentMonthCount, lastMonthCount }: StatsCard) => {
@@ -29,4 +29,4 @@ const StatsCard = ({headerTitle, total, currentMonthCount, lastMonthCount }: Sta
   )
 }
 
-export default StatsCard
+export default memo(StatsCard)

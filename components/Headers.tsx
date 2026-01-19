@@ -1,5 +1,5 @@
 import { ButtonComponent } from "@syncfusion/ej2-react-buttons";
-import React from "react";
+import React, { memo } from "react";
 import { Link, useLocation } from "react-router";
 import { cn } from "~/lib/utils";
 
@@ -53,4 +53,4 @@ const Headers = ({ title, description, ctaText, ctaUrl }: Props) => {
   );
 };
 
-export default Headers;
+export default memo(Headers);
