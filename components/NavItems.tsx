@@ -1,4 +1,4 @@
-import React from 'react'
+import { memo, useCallback } from 'react'
 import { Link, NavLink, useLoaderData, useNavigate } from 'react-router'
 import { logoutUser } from '~/appwrite/auth'
 import { sidebarItems } from '~/constants'
@@ -10,10 +10,10 @@ const NavItems = ({ handleClick }: { handleClick?: () => void}) => {
   const user = useLoaderData()
   const navigate = useNavigate()
 
-  async function handleLogout() {
+  const handleLogout = useCallback(async()=> {
     await logoutUser()
-    navigate('/sign-in')
-  }
+    navigate("/sign-in")
+  }, [navigate])
 
   return (
     <section className='nav-items'>
@@ -60,4 +60,4 @@ const NavItems = ({ handleClick }: { handleClick?: () => void}) => {
   )
 }
 
-export default NavItems
+export default memo(NavItems)

@@ -5,6 +5,7 @@ import {
   ChipsDirective,
 } from "@syncfusion/ej2-react-buttons";
 import { cn, getFirstWord } from "~/lib/utils";
+import { memo } from "react";
 
 const TripCard = ({
   id,
@@ -62,4 +63,4 @@ const TripCard = ({
   );
 };
 
-export default TripCard;
+export default memo(TripCard);
